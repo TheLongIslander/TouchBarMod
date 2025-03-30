@@ -4,6 +4,14 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Resources/AppIcon.icns</key>
+		<data>
+		CExecVLe6vKyag/GOib+P4LzA70=
+		</data>
+		<key>Resources/Assets.car</key>
+		<data>
+		U7XGI6hEOknQg9NQicyrvwPT3/I=
+		</data>
 		<key>Resources/Base.lproj/Main.storyboardc/Info.plist</key>
 		<data>
 		VFGiJ2SR+SJc9Lo+I9F7RLjCK9k=
@@ -40,6 +48,20 @@
 			</data>
 			<key>requirement</key>
 			<string>cdhash H"7e75291781ed9fa037da65a2be1a4f91296d575f"</string>
+		</dict>
+		<key>Resources/AppIcon.icns</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			046mYcocoRuHV/DjnYzAqeU6lHJ0VtW5l43P5eKV0ww=
+			</data>
+		</dict>
+		<key>Resources/Assets.car</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			mTOvcaOuyjZsbrNxoEWKOvTRKuiqGNkgr+WSHfuc9bg=
+			</data>
 		</dict>
 		<key>Resources/Base.lproj/Main.storyboardc/Info.plist</key>
 		<dict>

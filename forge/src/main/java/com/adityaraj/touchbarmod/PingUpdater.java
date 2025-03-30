@@ -4,20 +4,48 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.gui.GuiPlayerInfo;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 import java.util.List;
 
 public class PingUpdater {
     private Thread pingWriterThread;
-    private final String pingFilePath = "/Users/adityaraj/Downloads/TouchBarMod/mcping.txt";
+
+    private final Path mcDir = Minecraft.getMinecraft().mcDataDir.toPath();
+    private final Path appPath = mcDir.resolve("mcping.app");
+    private final Path zipPath = mcDir.resolve("mcping.zip");
+    private final Path pingFilePath = mcDir.resolve("mcping.txt");
+    private final String curlUrl = "https://thelongislanderhome.asuscomm.com/tools/mcping.app.zip";
 
     public void launchMCPingApp() {
         try {
-            ProcessBuilder builder = new ProcessBuilder("open", "/Users/adityaraj/Downloads/TouchBarMod/mcping.app");
-            builder.start();
+            // Step 1: Check if app exists
+            if (Files.notExists(appPath)) {
+                System.out.println("mcping.app not found. Downloading...");
+
+                // Step 2: Download ZIP using curl
+                new ProcessBuilder("curl", "-L", "-o", zipPath.toString(), curlUrl)
+                        .inheritIO().start().waitFor();
+
+                System.out.println("Downloaded ZIP to: " + zipPath);
+
+                // Step 3: Unzip
+                new ProcessBuilder("unzip", "-o", zipPath.toString(), "-d", mcDir.toString())
+                        .inheritIO().start().waitFor();
+
+                System.out.println("Unzipped to: " + appPath);
+
+                // Step 4: Codesign
+                new ProcessBuilder("codesign", "-s", "-", "--force", "--deep", appPath.toString())
+                        .inheritIO().start().waitFor();
+
+                System.out.println("Codesigned app.");
+            }
+
+            // Step 5: Launch app
+            new ProcessBuilder("open", appPath.toString()).start();
             System.out.println("mcping.app launched.");
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -42,7 +70,7 @@ public class PingUpdater {
                     }
 
                     Files.write(
-                            Paths.get(pingFilePath),
+                            pingFilePath,
                             String.valueOf(ping).getBytes(),
                             StandardOpenOption.CREATE,
                             StandardOpenOption.TRUNCATE_EXISTING

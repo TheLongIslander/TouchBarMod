@@ -6,6 +6,24 @@
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "#!/bin/bash&#10;&#10;APP_NAME=&quot;mcping.app&quot;&#10;SRC_PATH=&quot;${BUILT_PRODUCTS_DIR}/${APP_NAME}&quot;&#10;DEST_DIR=&quot;$HOME/Downloads/TouchBarMod&quot;&#10;DEST_PATH=&quot;$DEST_DIR/${APP_NAME}&quot;&#10;&#10;echo &quot;Waiting for $SRC_PATH to be fully available...&quot;&#10;ATTEMPTS=0&#10;while [ ! -f &quot;$SRC_PATH/Contents/MacOS/mcping&quot; ] &amp;&amp; [ $ATTEMPTS -lt 60 ]; do&#10;  echo &quot;Waiting... ($ATTEMPTS)&quot;&#10;  sleep 1&#10;  ATTEMPTS=$((ATTEMPTS+1))&#10;done&#10;&#10;if [ ! -f &quot;$SRC_PATH/Contents/MacOS/mcping&quot; ]; then&#10;  echo &quot;Error: Build never completed.&quot;&#10;  exit 1&#10;fi&#10;&#10;rm -rf &quot;$DEST_PATH&quot;&#10;mkdir -p &quot;$DEST_DIR&quot;&#10;rsync -a --delete &quot;$SRC_PATH/&quot; &quot;$DEST_PATH/&quot;&#10;&#10;echo &quot;Code signing...&quot;&#10;codesign -s - --force --deep &quot;$DEST_PATH&quot;&#10;&#10;cd &quot;$DEST_DIR&quot;&#10;rm -f mcping.app.zip&#10;zip -r mcping.app.zip mcping.app&#10;&#10;scp mcping.app.zip adityarajesh@thelongislanderhome.asuscomm.com:/var/www/tools/&#10;&#10;echo &quot;Post-build complete.&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "051A400A2D954D4B00329AD5"
+                     BuildableName = "mcping.app"
+                     BlueprintName = "mcping"
+                     ReferencedContainer = "container:mcping.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
