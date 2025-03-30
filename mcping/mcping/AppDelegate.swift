@@ -2,30 +2,27 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
-    var window: NSWindow!
     var pingLabel: NSTextField!
     var pingButton: NSButton!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
+        // Run app completely headless (no dock icon, no windows)
+        NSApp.setActivationPolicy(.prohibited)
 
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 200),
-                          styleMask: [.titled, .closable],
-                          backing: .buffered,
-                          defer: false)
-        window.title = "TouchBarPing"
-        window.makeKeyAndOrderFront(nil)
-
+        // Setup views for ping display
         setupPingViews()
-        window.touchBar = makeTouchBar()
+
+        // Add custom item to Control Strip (persistent area)
         AddToControlStrip(pingButton, "com.adityaraj.touchbar.ping")
 
+        // Start updating ping from file every second
         Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             self.updatePing()
         }
     }
 
     func setupPingViews() {
+        // Local Touch Bar fallback (if you ever re-enable a window)
         pingLabel = NSTextField(labelWithString: "-- ms")
         pingLabel.font = NSFont.systemFont(ofSize: 12)
         pingLabel.alignment = .center
@@ -34,6 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
         pingLabel.isEditable = false
         pingLabel.sizeToFit()
 
+        // Control Strip item (must be a button for proper rendering)
         pingButton = NSButton(title: "-- ms", target: nil, action: nil)
         pingButton.isBordered = false
         pingButton.bezelStyle = .texturedRounded
@@ -64,7 +62,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
                 DispatchQueue.main.async {
                     self.pingLabel.stringValue = "\(ping) ms"
                     self.pingLabel.textColor = color
-
                     self.pingButton.attributedTitle = attrTitle
                 }
             } else {
@@ -82,7 +79,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
             }
         }
     }
-
 
     func makeTouchBar() -> NSTouchBar {
         let touchBar = NSTouchBar()
