@@ -1,13 +1,16 @@
 package com.adityaraj.touchbarmod;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.gui.GuiPlayerInfo;
+
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.Random;
+import java.util.List;
 
 public class PingUpdater {
     private Thread pingWriterThread;
     private final String pingFilePath = "/Users/adityaraj/Downloads/TouchBarMod/mcping.txt";
-
 
     public void launchMCPingApp() {
         try {
@@ -22,11 +25,30 @@ public class PingUpdater {
     public void startWritingPing() {
         pingWriterThread = new Thread(() -> {
             try {
-                Random random = new Random();
+                Minecraft mc = Minecraft.getMinecraft();
                 while (!Thread.currentThread().isInterrupted()) {
-                    int fakePing = 50 + random.nextInt(100); // Replace with actual ping if needed
-                    Files.write(Paths.get(pingFilePath), String.valueOf(fakePing).getBytes(), StandardOpenOption.CREATE);
-                    Thread.sleep(1000); // update every 1s
+                    int ping = -1;
+
+                    if (mc.thePlayer != null && mc.thePlayer.sendQueue != null) {
+                        NetHandlerPlayClient handler = mc.thePlayer.sendQueue;
+                        List<GuiPlayerInfo> playerList = handler.playerInfoList;
+
+                        for (GuiPlayerInfo info : playerList) {
+                            if (info.name.equals(mc.thePlayer.getCommandSenderName())) {
+                                ping = info.responseTime;
+                                break;
+                            }
+                        }
+                    }
+
+                    Files.write(
+                            Paths.get(pingFilePath),
+                            String.valueOf(ping).getBytes(),
+                            StandardOpenOption.CREATE,
+                            StandardOpenOption.TRUNCATE_EXISTING
+                    );
+
+                    Thread.sleep(1000); // update every 1 second
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
@@ -36,12 +58,10 @@ public class PingUpdater {
     }
 
     public void stopMCPingApp() {
-        // Optionally stop the ping thread first
         if (pingWriterThread != null) {
             pingWriterThread.interrupt();
         }
         try {
-            // Kill the app by its process name
             Runtime.getRuntime().exec("killall mcping");
         } catch (IOException e) {
             e.printStackTrace();

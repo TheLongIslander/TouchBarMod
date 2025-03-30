@@ -3,12 +3,13 @@ import Cocoa
 @main
 class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
     var window: NSWindow!
-    let pingLabel = NSTextField(labelWithString: "Ping: -- ms")
+    var pingLabel: NSTextField!
+    var pingButton: NSButton!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
-        // Create dummy window to attach Touch Bar
+        // Optional dummy window
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 200),
                           styleMask: [.titled, .closable],
                           backing: .buffered,
@@ -16,39 +17,56 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
         window.title = "TouchBarPing"
         window.makeKeyAndOrderFront(nil)
 
-        // Show custom Touch Bar on that window
+        // Setup ping views
+        setupPingViews()
+
+        // Attach to window-local Touch Bar
         window.touchBar = makeTouchBar()
+
+        // Attach to Control Strip (this is the persistent one on the right)
+        AddToControlStrip(pingButton, "com.adityaraj.touchbar.ping")
 
         // Start ping update loop
         Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             self.updatePing()
         }
     }
-    
+
+    func setupPingViews() {
+        // For the local Touch Bar
+        pingLabel = NSTextField(labelWithString: "Ping: -- ms")
+        pingLabel.font = NSFont.systemFont(ofSize: 12)
+        pingLabel.alignment = .center
+        pingLabel.isBezeled = false
+        pingLabel.drawsBackground = false
+        pingLabel.isEditable = false
+        pingLabel.sizeToFit()
+
+        // For the Control Strip (must be a button to render properly)
+        pingButton = NSButton(title: "Ping: -- ms", target: nil, action: nil)
+        pingButton.isBordered = false
+        pingButton.bezelStyle = .texturedRounded
+        pingButton.font = NSFont.systemFont(ofSize: 12)
+    }
+
     func updatePing() {
         let bundlePath = Bundle.main.bundleURL.deletingLastPathComponent()
         let path = bundlePath.appendingPathComponent("mcping.txt").path
 
-        print("📂 Trying to read: \(path)")
-
         do {
             let contents = try String(contentsOfFile: path, encoding: .utf8)
             let cleaned = contents.trimmingCharacters(in: .whitespacesAndNewlines)
-            print("Read ping: '\(cleaned)'")
             DispatchQueue.main.async {
                 self.pingLabel.stringValue = "Ping: \(cleaned) ms"
+                self.pingButton.title = "Ping: \(cleaned) ms"
             }
         } catch {
-            print("Failed to read ping file at: \(path)\nError: \(error)")
             DispatchQueue.main.async {
                 self.pingLabel.stringValue = "Ping: -- ms"
+                self.pingButton.title = "Ping: -- ms"
             }
         }
     }
-
-
-
-
 
     func makeTouchBar() -> NSTouchBar {
         let touchBar = NSTouchBar()
