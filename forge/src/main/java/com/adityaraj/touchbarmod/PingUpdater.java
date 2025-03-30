@@ -45,11 +45,17 @@ public class PingUpdater {
             // Step 5: Launch app
             new ProcessBuilder("open", appPath.toString()).start();
             System.out.println("mcping.app launched.");
+
+            // Step 6: Cleanup ZIP after successful launch
+            if (Files.exists(zipPath)) {
+                Files.delete(zipPath);
+                System.out.println("Cleaned up ZIP.");
+            }
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
-
     public void startWritingPing() {
         pingWriterThread = new Thread(() -> {
             try {
@@ -89,10 +95,23 @@ public class PingUpdater {
         if (pingWriterThread != null) {
             pingWriterThread.interrupt();
         }
+
         try {
             Runtime.getRuntime().exec("killall mcping");
+            System.out.println("mcping.app closed.");
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        try {
+            if (Files.exists(pingFilePath)) {
+                Files.delete(pingFilePath);
+                System.out.println("Deleted mcping.txt.");
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to delete mcping.txt:");
+            e.printStackTrace();
+        }
     }
+
 }
