@@ -36,10 +36,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			dfgv5/z74BH8gvkI3dAP3e4mKCs=
+			gJoxChktV8tR11MSwvXr4Kj/djI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"75f82fe7fcfbe011fc82f908ddd00fddee26282b"</string>
+			<string>cdhash H"809a310a192d57cb51d75312c2f5ebe0a8ff7632"</string>
 		</dict>
 		<key>Resources/Base.lproj/Main.storyboardc/Info.plist</key>
 		<dict>
