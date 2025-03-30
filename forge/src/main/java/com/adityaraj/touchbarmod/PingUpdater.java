@@ -14,7 +14,6 @@ public class PingUpdater {
     private final Path mcDir = Minecraft.getMinecraft().mcDataDir.toPath();
     private final Path appPath = mcDir.resolve("mcping.app");
     private final Path zipPath = mcDir.resolve("mcping.zip");
-    private final Path pingFilePath = mcDir.resolve("mcping.txt");
     private final String curlUrl = "https://thelongislanderhome.asuscomm.com/tools/mcping.app.zip";
 
     public void launchMCPingApp() {
@@ -58,8 +57,17 @@ public class PingUpdater {
     }
     public void startWritingPing() {
         pingWriterThread = new Thread(() -> {
+            Path pipePath = Paths.get("/tmp/mcping.pipe");
+
             try {
+                // Create the named pipe if it doesn't exist
+                if (Files.notExists(pipePath)) {
+                    new ProcessBuilder("mkfifo", pipePath.toString()).inheritIO().start().waitFor();
+                    System.out.println("Created named pipe at: " + pipePath);
+                }
+
                 Minecraft mc = Minecraft.getMinecraft();
+
                 while (!Thread.currentThread().isInterrupted()) {
                     int ping = -1;
 
@@ -75,21 +83,28 @@ public class PingUpdater {
                         }
                     }
 
-                    Files.write(
-                            pingFilePath,
-                            String.valueOf(ping).getBytes(),
-                            StandardOpenOption.CREATE,
-                            StandardOpenOption.TRUNCATE_EXISTING
-                    );
+                    // Try writing to the pipe (blocks until the reader connects)
+                    try (BufferedWriter writer = Files.newBufferedWriter(pipePath, StandardOpenOption.WRITE)) {
+                        writer.write(String.valueOf(ping));
+                        writer.newLine();
+                        writer.flush();
+                    } catch (IOException e) {
+                        System.err.println("No reader available yet, retrying...");
+                        Thread.sleep(500);
+                        continue;
+                    }
 
-                    Thread.sleep(1000); // update every 1 second
+                    Thread.sleep(1000); // wait 1 sec before next ping write
                 }
+
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
+
         pingWriterThread.start();
     }
+
 
     public void stopMCPingApp() {
         if (pingWriterThread != null) {
@@ -104,14 +119,16 @@ public class PingUpdater {
         }
 
         try {
-            if (Files.exists(pingFilePath)) {
-                Files.delete(pingFilePath);
-                System.out.println("Deleted mcping.txt.");
+            Path pipePath = Paths.get("/tmp/mcping.pipe");
+            if (Files.exists(pipePath)) {
+                Files.delete(pipePath);
+                System.out.println("Deleted /tmp/mcping.pipe.");
             }
         } catch (IOException e) {
-            System.err.println("Failed to delete mcping.txt:");
+            System.err.println("Failed to delete /tmp/mcping.pipe:");
             e.printStackTrace();
         }
     }
+
 
 }

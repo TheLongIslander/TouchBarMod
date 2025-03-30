@@ -39,54 +39,67 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
     }
 
     func updatePing() {
-        let bundlePath = Bundle.main.bundleURL.deletingLastPathComponent()
-        let path = bundlePath.appendingPathComponent("mcping.txt").path
+        let pipePath = "/tmp/mcping.pipe"
 
-        do {
-            let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let cleaned = contents.trimmingCharacters(in: .whitespacesAndNewlines)
-
-            if let ping = Int(cleaned) {
-                DispatchQueue.main.async {
-                    if ping == -1 {
-                        // Show Minecraft icon
-                        let icon = NSImage(named: "favicon")
-                        self.pingButton.image = icon
-                        self.pingButton.title = ""
-                        self.pingButton.imageScaling = .scaleProportionallyUpOrDown
-                        self.pingButton.imagePosition = .imageOnly
-                    } else {
-                        // Show text ping with color
-                        let color: NSColor
-                        switch ping {
-                            case ..<50: color = .systemGreen
-                            case 50..<150: color = .systemYellow
-                            default: color = .systemRed
-                        }
-
-                        let attrTitle = NSAttributedString(string: "\(ping) ms", attributes: [
-                            .foregroundColor: color,
-                            .font: NSFont.systemFont(ofSize: 12)
-                        ])
-
-                        self.pingButton.image = nil
-                        self.pingButton.attributedTitle = attrTitle
-                    }
+        DispatchQueue.global(qos: .background).async {
+            while true {
+                guard let fileHandle = FileHandle(forReadingAtPath: pipePath) else {
+                    sleep(1)
+                    continue
                 }
-            } else {
-                throw NSError(domain: "Invalid ping", code: 0)
-            }
-        } catch {
-            let fallbackAttr = NSAttributedString(string: "-- ms", attributes: [
-                .foregroundColor: NSColor.white,
-                .font: NSFont.systemFont(ofSize: 12)
-            ])
-            DispatchQueue.main.async {
-                self.pingButton.image = nil
-                self.pingButton.attributedTitle = fallbackAttr
+
+                do {
+                    let reader = try TextInputStream(fileHandle: fileHandle)
+
+                    while let line = reader.readLine() {
+                        if let ping = Int(line.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                            DispatchQueue.main.async {
+                                if ping == -1 {
+                                    let icon = NSImage(named: "favicon")
+                                    self.pingButton.image = icon
+                                    self.pingButton.title = ""
+                                    self.pingButton.imageScaling = .scaleProportionallyUpOrDown
+                                    self.pingButton.imagePosition = .imageOnly
+                                } else {
+                                    let color: NSColor
+                                    switch ping {
+                                        case ..<50: color = .systemGreen
+                                        case 50..<150: color = .systemYellow
+                                        default: color = .systemRed
+                                    }
+
+                                    let attrTitle = NSAttributedString(string: "\(ping) ms", attributes: [
+                                        .foregroundColor: color,
+                                        .font: NSFont.systemFont(ofSize: 12)
+                                    ])
+
+                                    self.pingButton.image = nil
+                                    self.pingButton.attributedTitle = attrTitle
+                                }
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                let fallbackAttr = NSAttributedString(string: "-- ms", attributes: [
+                                    .foregroundColor: NSColor.white,
+                                    .font: NSFont.systemFont(ofSize: 12)
+                                ])
+                                self.pingButton.image = nil
+                                self.pingButton.attributedTitle = fallbackAttr
+                            }
+                        }
+                    }
+
+                    // Reader finished (EOF) — reconnect on next loop
+                    print("Pipe closed. Reopening...")
+
+                } catch {
+                    print("Failed to read from pipe: \(error)")
+                    sleep(1)
+                }
             }
         }
     }
+
 
     func makeTouchBar() -> NSTouchBar {
         let touchBar = NSTouchBar()
