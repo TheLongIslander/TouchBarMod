@@ -47,22 +47,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
             let cleaned = contents.trimmingCharacters(in: .whitespacesAndNewlines)
 
             if let ping = Int(cleaned) {
-                let color: NSColor
-                switch ping {
-                    case ..<50: color = .systemGreen
-                    case 50..<150: color = .systemYellow
-                    default: color = .systemRed
-                }
-
-                let attrTitle = NSAttributedString(string: "\(ping) ms", attributes: [
-                    .foregroundColor: color,
-                    .font: NSFont.systemFont(ofSize: 12)
-                ])
-
                 DispatchQueue.main.async {
-                    self.pingLabel.stringValue = "\(ping) ms"
-                    self.pingLabel.textColor = color
-                    self.pingButton.attributedTitle = attrTitle
+                    if ping == -1 {
+                        // Show Minecraft icon
+                        let icon = NSImage(named: "favicon")
+                        self.pingButton.image = icon
+                        self.pingButton.title = ""
+                        self.pingButton.imageScaling = .scaleProportionallyUpOrDown
+                        self.pingButton.imagePosition = .imageOnly
+                    } else {
+                        // Show text ping with color
+                        let color: NSColor
+                        switch ping {
+                            case ..<50: color = .systemGreen
+                            case 50..<150: color = .systemYellow
+                            default: color = .systemRed
+                        }
+
+                        let attrTitle = NSAttributedString(string: "\(ping) ms", attributes: [
+                            .foregroundColor: color,
+                            .font: NSFont.systemFont(ofSize: 12)
+                        ])
+
+                        self.pingButton.image = nil
+                        self.pingButton.attributedTitle = attrTitle
+                    }
                 }
             } else {
                 throw NSError(domain: "Invalid ping", code: 0)
@@ -73,8 +82,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTouchBarDelegate {
                 .font: NSFont.systemFont(ofSize: 12)
             ])
             DispatchQueue.main.async {
-                self.pingLabel.stringValue = "-- ms"
-                self.pingLabel.textColor = .white
+                self.pingButton.image = nil
                 self.pingButton.attributedTitle = fallbackAttr
             }
         }
