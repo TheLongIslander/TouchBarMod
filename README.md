@@ -14,7 +14,8 @@
   - Minecraft icon if ping is unavailable
 - Gracefully shuts down the app and cleans up on Minecraft exit
 - Automatically downloads, unzips, and locally code-signs `mcping.app` if not found
-- Updates ping value every second via a `mcping.txt` file
+- Streams ping updates every second via a real-time **named pipe** (`/tmp/mcping.pipe`)
+- Fully auto-recovers if either Minecraft or the Touch Bar app is restarted
 
 ## Requirements
 
@@ -25,7 +26,7 @@
 
 ## Setup Instructions
 
-1. **Clone or Install the Mod**
+1. **Install the Mod**
 
    Place the `TouchBarMod.jar` into your `mods/` directory with Forge 1.7.10 installed.
 
@@ -34,7 +35,7 @@
    On first launch, the mod will:
    - Download `mcping.app.zip` from a hosted server
    - Extract and code-sign the app locally
-   - Launch the app, which reads from `mcping.txt`
+   - Launch the app, which listens for ping updates over a named pipe
 
 3. **Touch Bar Behavior**
 
@@ -47,7 +48,7 @@
 
    On Minecraft exit:
    - `mcping.app` is closed automatically
-   - `mcping.txt` is deleted
+   - The named pipe at `/tmp/mcping.pipe` is deleted
 
 ## File Structure
 
@@ -58,15 +59,23 @@ touchbarmod/
 │       ├── TouchBarMod.java        # Main mod class
 │       └── PingUpdater.java        # Handles app launching and ping writing
 └── native-app/
-    ├── AppDelegate.swift           # Swift Touch Bar logic
-    ├── ControlStripBridge.m       # Adds button to system Touch Bar
-    ├── ControlStripBridge.h       # Header for native bridge
-    └── mcping-Bridging-Header.h   # Bridging header for Swift/Obj-C
+    ├── AppDelegate.swift           # Swift Touch Bar logic and pipe reader
+    ├── TextInputStream.swift       # Line-by-line pipe reader helper
+    ├── ControlStripBridge.m        # Adds button to system Touch Bar
+    ├── ControlStripBridge.h        # Header for native bridge
+    └── mcping-Bridging-Header.h    # Bridging header for Swift/Obj-C
 ```
 
 ## Security Note
 
 This project uses macOS's `codesign` with a temporary local identity (`-`) for sandboxing purposes. This ensures the app is recognized by macOS as trusted even without a developer certificate.
+
+## How the Pipe Works
+
+- The mod creates a named pipe at `/tmp/mcping.pipe` using `mkfifo`
+- It writes the latest ping every second to the pipe
+- The Swift app reads lines from the pipe and updates the Touch Bar accordingly
+- If either side restarts, the pipe auto-recovers — no manual reset needed
 
 ## Credits
 
