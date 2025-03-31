@@ -19,7 +19,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.0"
+version = "1.1"
 group = "com.yourname.modid"
 archivesBaseName = "TouchBarMod"
 
@@ -34,8 +34,13 @@ repositories {
     }
 }
 
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
 dependencies {
-    implementation name: 'jtouchbar-1.0.0'
+    embed name: 'jtouchbar-1.0.0'
 }
 
 processResources {
@@ -60,4 +65,10 @@ compileJava {
 compileTestJava {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+}
+
+jar {
+    from {
+        configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

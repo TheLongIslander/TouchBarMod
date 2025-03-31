@@ -20,9 +20,6 @@ public class TouchBarMod {
     private FPSUpdater fpsUpdater;
     private TouchBarButton settingsButton;
     private boolean isFPSEnabled = true;
-
-
-
     @EventHandler
     public void init(FMLInitializationEvent event) {
         System.out.println("Touch Bar Mod initialized!");
@@ -41,7 +38,6 @@ public class TouchBarMod {
             pingUpdater.stopMCPingApp();
         }));
     }
-
     private void setupTouchBar() {
         try {
             touchBar = new JTouchBar();
@@ -115,12 +111,6 @@ public class TouchBarMod {
             }).start();
         }
     }
-
-
-
-
-
-
     private long getNSWindowID() {
         try {
             java.lang.reflect.Method implMethod = org.lwjgl.opengl.Display.class.getDeclaredMethod("getImplementation");
