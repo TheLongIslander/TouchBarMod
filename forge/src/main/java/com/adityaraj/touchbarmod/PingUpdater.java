@@ -3,6 +3,11 @@ package com.adityaraj.touchbarmod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.gui.GuiPlayerInfo;
+import com.thizzer.jtouchbar.JTouchBar;
+import com.thizzer.jtouchbar.common.Color;
+import com.thizzer.jtouchbar.common.Image;
+import com.thizzer.jtouchbar.item.TouchBarItem;
+import com.thizzer.jtouchbar.item.view.TouchBarButton;
 
 import java.io.*;
 import java.nio.file.*;

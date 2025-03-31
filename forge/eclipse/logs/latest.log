@@ -1,13 +1,11 @@
-[18:14:44] [main/INFO]: Setting user: Player244
-[18:14:45] [Client thread/INFO]: LWJGL Version: 2.9.1
-[18:14:49] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:TouchBarMod
-[18:14:50] [Client thread/INFO]: Created: 16x16 textures/blocks-atlas
-[18:14:50] [Client thread/INFO]: Created: 16x16 textures/items-atlas
-[18:14:50] [Sound Library Loader/INFO]: Sound engine started
-[18:14:50] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:TouchBarMod
-[18:14:50] [Client thread/INFO]: Created: 512x256 textures/blocks-atlas
-[18:14:51] [Client thread/INFO]: Created: 256x256 textures/items-atlas
-[18:14:51] [Sound Library Loader/INFO]: Sound engine started
-[18:14:54] [Client thread/WARN]: Unable to start LAN server detection: Can't assign requested address
-[18:14:56] [Client thread/INFO]: Connecting to 192.168.50.160, 25567
-[18:16:02] [Client thread/INFO]: Stopping!
+[21:03:51] [main/INFO]: Setting user: Player566
+[21:03:52] [Client thread/INFO]: LWJGL Version: 2.9.1
+[21:03:57] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:TouchBarMod
+[21:03:58] [Client thread/INFO]: Created: 16x16 textures/blocks-atlas
+[21:03:58] [Client thread/INFO]: Created: 16x16 textures/items-atlas
+[21:03:58] [Sound Library Loader/INFO]: Sound engine started
+[21:03:58] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:TouchBarMod
+[21:03:58] [Client thread/INFO]: Created: 512x256 textures/blocks-atlas
+[21:03:58] [Client thread/INFO]: Created: 256x256 textures/items-atlas
+[21:03:59] [Sound Library Loader/INFO]: Sound engine started
+[21:04:21] [Client thread/INFO]: Stopping!
